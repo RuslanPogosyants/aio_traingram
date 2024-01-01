@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "aio-traingram"
+version = "0.1.0"
+description = "A telegram bot that helps with workouts"
+authors = ["r.pogosyants"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+aiogram = "^3.2.0"
+python-dotenv = "^1.0.0"
+sqlalchemy = "^2.0.23"
+psycopg = "^3.1.16"
+psycopg2 = "^2.9.9"
+beautifulsoup4 = "^4.12.2"
+requests = "^2.31.0"
+lxml = "^4.9.4"
+openai = "^1.6.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

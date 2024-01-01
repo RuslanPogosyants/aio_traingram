@@ -1,0 +1,6 @@
+**/Lib
+**/Scripts
+**/include
+pyvenv.cfg
+**/Extensions
+project/.env
