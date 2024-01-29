@@ -1,3 +1,4 @@
+from aiogram.filters import CommandStart
 from project.database.models import User
 from aiogram import Dispatcher
 from aiogram.types import CallbackQuery, Message, InlineKeyboardMarkup
@@ -119,6 +120,6 @@ async def set_pace(callback: CallbackQuery, state: FSMContext) -> None:
 
 
 def register_handlers_account(dp: Dispatcher):
-    dp.message.register(start, state="*")
-    dp.message.register(ask_name, state=UserStates.ask_name)
-    dp.message.register(up_set_name, state=UserStates.set_name)
+    dp.message.register(start)
+    dp.message.register(ask_name, UserStates.ask_name)
+    dp.message.register(set_name, UserStates.set_name)
