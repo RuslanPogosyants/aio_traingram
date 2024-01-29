@@ -1,6 +1,7 @@
 from .base import Base, session
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.sql import select
+from aiogram.utils.markdown import hbold
 
 
 class User(Base):
@@ -34,8 +35,14 @@ class User(Base):
     @classmethod
     def view_info(cls, user_id: int) -> str:
         user = session.query(cls).filter_by(id=user_id).first()
+        info = f'Ваше имя: {hbold(user.name)}\n'
+        f'Ваш возраст: {hbold(user.age)}\n'
+        f'Ваш пол: {hbold(user.gender)}\n'
+        f'Ваш вес: {hbold(user.weight)}\n'
+        f'Ваш рост: {hbold(user.height)}\n'
+        f'Ваша цель: {hbold(user.pace)}\n'
         if user:
-            return f"Ваше имя: {user.name}"
+            return info
         else:
             raise ValueError("User not found")
 
