@@ -8,4 +8,4 @@ TOKEN = os.getenv("BOT_TOKEN")
 dp = Dispatcher()
 bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
 
-ai_token = os.getenv("AI_TOKEN")
+db_url = os.getenv("DATABASE_URL")
