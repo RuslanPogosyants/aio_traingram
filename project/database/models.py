@@ -92,4 +92,9 @@ class User(Base):
         user.pace = pace
         session.commit()
 
+    @classmethod
+    def set_split(cls, user_id: int, split_name):
+        user = session.query(cls).filter_by(id=user_id).first()
+        user.split = split_name
+        session.commit()
 

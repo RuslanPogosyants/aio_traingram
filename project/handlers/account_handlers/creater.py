@@ -43,15 +43,16 @@ async def start(message: Message, state: FSMContext) -> None:
         await message.answer('Вы уже зарегистрированы!')
     else:
         User.create_user(user_id)
-        await message.answer('Давайте зарегистрируем вас!')
+        bot_message = await bot.send_message(chat_id=user_id, text='Давайте зарегистрируем вас!')
         await state.set_state(UserStates.ask_name)
+        await state.update_data(message_id=bot_message.message_id)
 
 
 async def ask_name(message: Message, state: FSMContext) -> None:
     text = 'Введите ваше имя:'
     await message.answer(text=text)
     await state.set_state(UserStates.set_name)
-    bot_message = await bot.send_message(chat_id=message.from_user.id, text=text)
+    bot_message = await bot.edit_message_text(chat_id=message.from_user.id, text=text)
     await state.update_data(message_id=bot_message.message_id)
 
 
@@ -161,4 +162,6 @@ async def wrong_weight(message: Message, state: FSMContext):
 def register_handlers_account(dp: Dispatcher):
     dp.message.register(start)
     dp.message.register(ask_name, UserStates.ask_name)
-    dp.message.register(set_name, UserStates.set_name)
+    dp.message.register(set_name, UserStates.set_name, lambda x: x.isalpha() and len(x) < 30)
+
+
