@@ -8,11 +8,11 @@ class User(Base):
     __tablename__ = "user_account"
     id = Column(BigInteger, primary_key=True)
     name = Column(String(30), default=None)
-    gender = Column(String(6), default=None)
+    gender = Column(String(30), default=None)
     age = Column(Integer, default=None)
     height = Column(Integer, default=None)
     weight = Column(Integer, default=None)
-    pace = Column(Integer, default=None)
+    pace = Column(String(30), default=None)
     split = Column(String(30), default=None)
 
     def __repr__(self) -> str:
@@ -56,7 +56,6 @@ class User(Base):
         user = session.query(cls).filter_by(id=user_id).first()
         user.name = new_name
         session.commit()
-
 
     @classmethod
     def set_name(cls, user_id: int, name) -> None:
@@ -112,27 +111,27 @@ class User(Base):
 
     @classmethod
     def get_age(cls, user_id):
-        user = session.query(User).filter_by(id=user_id).first()
+        user = session.query(cls).filter_by(id=user_id).first()
         return user.age if user else None
 
     @classmethod
     def get_height(cls, user_id):
-        user = session.query(User).filter_by(id=user_id).first()
+        user = session.query(cls).filter_by(id=user_id).first()
         return user.height if user else None
 
     @classmethod
     def get_weight(cls, user_id):
-        user = session.query(User).filter_by(id=user_id).first()
+        user = session.query(cls).filter_by(id=user_id).first()
         return user.weight if user else None
 
     @classmethod
     def get_pace(cls, user_id):
-        user = session.query(User).filter_by(id=user_id).first()
+        user = session.query(cls).filter_by(id=user_id).first()
         return user.pace if user else None
 
     @classmethod
     def get_split(cls, user_id):
-        user = session.query(User).filter_by(id=user_id).first()
+        user = session.query(cls).filter_by(id=user_id).first()
         return user.split if user else None
 
 Base.metadata.create_all(engine)

@@ -1,4 +1,4 @@
-from aiogram.filters import CommandStart
+from aiogram.dispatcher.event.handler import CallbackType
 from project.database.models import User
 from aiogram import Dispatcher, F
 from aiogram.types import CallbackQuery, Message, InlineKeyboardMarkup
@@ -9,10 +9,16 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.markdown import hbold
 
 
-def create_ik(arg) -> InlineKeyboardMarkup:
+def create_ik(args: str | list) -> InlineKeyboardMarkup:
     builder = KeyboardBuilder(button_type=InlineKeyboardButton)
-    inline_button = InlineKeyboardButton(text=arg, callback_data=arg)
-    builder.add(inline_button)
+    if isinstance(args, list):
+        for arg in args:
+            inline_button = InlineKeyboardButton(text=arg, callback_data=arg)
+            builder.add(inline_button)
+    else:
+        inline_button = InlineKeyboardButton(text=args, callback_data=args)
+        builder.add(inline_button)
+
     markup = InlineKeyboardMarkup(inline_keyboard=builder.export())
     return markup
 
@@ -48,121 +54,117 @@ async def start(message: Message, state: FSMContext) -> None:
 
 async def ask_name(callback: CallbackQuery, state: FSMContext) -> None:
     text = 'Введите ваше имя:'
-    await state.set_state(UserStates.set_name)
+
     data = await state.get_data()
     bot_message = await bot.edit_message_text(chat_id=callback.from_user.id, text=text,  message_id=data['message_id'])
     await state.update_data(message_id=bot_message.message_id)
 
+    await state.set_state(UserStates.set_name)
 
-async def set_name(message: Message, state: FSMContext) -> None:
+
+async def set_name_ask_age(message: Message, state: FSMContext) -> None:
     user_id = message.from_user.id
     name = message.text
     User.set_name(user_id=user_id, name=name)
-    text = f'Ваше имя {User.name}/nВведите ваш возраст:'
+
+    text = f'Ваше имя: {User.get_name(user_id)}\nВведите ваш возраст:'
+
     data = await state.get_data()
     bot_message = await bot.edit_message_text(chat_id=message.from_user.id, text=text, message_id=data['message_id'])
     await state.update_data(message_id=bot_message.message_id)
-    await state.set_state(UserStates.ask_age)
+
+    await bot.delete_message(chat_id=message.from_user.id, message_id=message.message_id)
+    await state.set_state(UserStates.set_age)
 
 
-async def set_age(message: Message, state: FSMContext) -> None:
+async def set_age_ask_gender(message: Message, state: FSMContext) -> None:
     user_id = message.from_user.id
     age = message.text
-    User.set_age(user_id=user_id, age=age)
-    await state.set_state(UserStates.ask_gender)
+    User.set_age(user_id=user_id, age=int(age))
 
+    text = f'Ваше имя: {User.get_name(user_id)}\nВаш возраст: {User.get_age(user_id)}\nВыберите пол:'
 
-async def ask_gender(callback: CallbackQuery, state: FSMContext) -> None:
-    user_id = callback.from_user.id
-    text = 'Выберите пол:'
-    ik_gender = create_ik('Мужской', 'Женский')
-    await bot.send_message(chat_id=user_id, text=text, reply_markup=ik_gender)
+    data = await state.get_data()
+    bot_message = await bot.edit_message_text(chat_id=message.from_user.id, text=text, message_id=data['message_id'], reply_markup=create_ik(['Мужской', 'Женский']))
+    await state.update_data(message_id=bot_message.message_id)
+
+    await bot.delete_message(chat_id=message.from_user.id, message_id=message.message_id)
     await state.set_state(UserStates.set_gender)
 
 
-async def set_gender(callback: CallbackQuery, state: FSMContext) -> None:
+async def set_gender_ask_height(callback: CallbackQuery, state: FSMContext) -> None:
     user_id = callback.from_user.id
     gender = callback.data
     User.set_gender(user_id=user_id, gender=gender)
-    await state.set_state(UserStates.ask_height)
 
+    text = f'Ваше имя: {User.get_name(user_id)}\nВаш возраст: {User.get_age(user_id)}\nВаш пол: {User.get_gender(user_id)}\nВведите ваш рост:'
 
-async def ask_height(message: Message, state: FSMContext) -> None:
-    text = 'Введите рост:'
-    await message.answer(text=text)
+    data = await state.get_data()
+    bot_message = await bot.edit_message_text(chat_id=callback.from_user.id, text=text,  message_id=data['message_id'])
+    await state.update_data(message_id=bot_message.message_id)
+
     await state.set_state(UserStates.set_height)
 
 
-async def set_height(message:Message, state: FSMContext) -> None:
+async def set_height_ask_weight(message: Message, state: FSMContext) -> None:
     user_id = message.from_user.id
     height = message.text
     User.set_height(user_id=user_id, height=height)
-    await state.set_state(UserStates.ask_weight)
 
+    text = f'Ваше имя: {User.get_name(user_id)}\nВаш возраст: {User.get_age(user_id)}\nВаш пол: {User.get_gender(user_id)}\nВведите ваш рост: {User.get_height(user_id)}\nВведите ваш вес:'
 
-async def ask_weight(message: Message, state: FSMContext) -> None:
-    text = 'Введите вес:'
-    await message.answer(text=text)
+    data = await state.get_data()
+    bot_message = await bot.edit_message_text(chat_id=message.from_user.id, text=text, message_id=data['message_id'])
+    await state.update_data(message_id=bot_message.message_id)
+
+    await bot.delete_message(chat_id=message.from_user.id, message_id=message.message_id)
     await state.set_state(UserStates.set_weight)
 
 
-async def set_weight(message: Message, state: FSMContext) -> None:
+async def set_weight_ask_pace(message: Message, state: FSMContext) -> None:
     user_id = message.from_user.id
     weight = message.text
     User.set_weight(user_id=user_id, weight=weight)
-    await state.set_state(UserStates.ask_pace)
 
+    text = f'Ваше имя: {User.get_name(user_id)}\nВаш возраст: {User.get_age(user_id)}\nВаш пол: {User.get_gender(user_id)}\nВведите ваш рост: {User.get_height(user_id)}\nВаш вес: {User.get_weight(user_id)}\nВыберите темп:' + '\nP.S. Темп - условное определение нагрузок, т.е. кол-во повторений и подходов, сложность упражнений, каллоража и т.д.'
 
-async def ask_pace(message: Message, state: FSMContext) -> None:
-    text = 'Выберите темп:'
-    await message.answer(text=text)
+    data = await state.get_data()
+    bot_message = await bot.edit_message_text(chat_id=message.from_user.id, text=text, message_id=data['message_id'], reply_markup=create_ik(['Минимальный', 'Средний', 'Максимальный']))
+    await state.update_data(message_id=bot_message.message_id)
+
+    await bot.delete_message(chat_id=message.from_user.id, message_id=message.message_id)
     await state.set_state(UserStates.set_pace)
 
 
-async def set_pace(callback: CallbackQuery, state: FSMContext) -> None:
+async def set_pace_ask_splits(callback: CallbackQuery, state: FSMContext) -> None:
     user_id = callback.from_user.id
     pace = callback.data
     User.set_pace(user_id=user_id, pace=pace)
+
+    text = f'Ваше имя: {User.get_name(user_id)}\nВаш возраст: {User.get_age(user_id)}\nВаш пол: {User.get_gender(user_id)}\nВведите ваш рост: {User.get_height(user_id)}\nВаш вес: {User.get_weight(user_id)}\nВаш темп: {User.get_pace(user_id)}'
+
+    data = await state.get_data()
+    bot_message = await bot.edit_message_text(chat_id=callback.from_user.id, text=text, message_id=data['message_id'])
+    await state.update_data(message_id=bot_message.message_id)
+
     await state.set_state(UserStates.ask_splits)
 
 
-async def ask_splits(message: Message, state: FSMContext) -> None:
-    user_id = message.from_user.id
-    text = '...'
-    await message.answer(text=text)
-    await state.set_state(UserStates.set_split)
-
-
-async def set_splits(callback: CallbackQuery, state: FSMContext) -> None:
+async def set_splits_end_create_profile(callback: CallbackQuery, state: FSMContext) -> None:
     user_id = callback.from_user.id
     User.set_split(user_id, 'split.name')
     text = '...'
     await bot.send_message(chat_id=user_id, text=text)
 
 
-async def wrong_age(message: Message, state: FSMContext):
-    text = 'Возраст должен быть целым числом от 4 до 120.\n\nПопробуйте еще раз\n\n'
-    await message.answer(text=text)
-
-
-async def wrong_name(message: Message, state: FSMContext):
-    text = 'Имя не должно содержать символов или цифр.\n\nПопробуйте еще раз\n\n'
-    await message.answer(text=text)
-
-
-async def wrong_height(message: Message, state: FSMContext):
-    text = 'Рост должен быть указан в сантиметрах, от 100 до 300.\n\nПожалуйста, введите корректный рост.\n\n'
-    await message.answer(text=text)
-
-
-async def wrong_weight(message: Message, state: FSMContext):
-    text = 'Вес должен быть указан в килограммах, от 20 до 300.\n\nПожалуйста, введите корректный вес.\n\n'
-    await message.answer(text=text)
-
-
-def register_handlers_account(dp: Dispatcher):
+def register_handlers_account(dp: Dispatcher) -> None:
     dp.message.register(start, F.text.casefold() == '/start')
     dp.callback_query.register(ask_name, lambda callback_query: callback_query.data == 'Начать регистрацию!')
-    dp.message.register(set_name, UserStates.set_name, lambda x: x.text.isalpha())
-
+    dp.message.register(set_name_ask_age, UserStates.set_name, lambda x: x.text.isalpha())
+    dp.message.register(set_age_ask_gender, UserStates.set_age, lambda x: x.text.isdigit())
+    dp.callback_query.register(set_gender_ask_height, UserStates.set_gender, lambda callback_query: callback_query.data in ['Мужской', 'Женский'])
+    dp.message.register(set_height_ask_weight, UserStates.set_height, lambda x: x.text.isdigit())
+    dp.message.register(set_weight_ask_pace, UserStates.set_weight, lambda x: x.text.isdigit())
+    dp.callback_query.register(set_pace_ask_splits, UserStates.set_pace, lambda callback_query: callback_query.data in ['Минимальный', 'Средний', 'Максимальный'])
+    dp.callback_query.register(set_splits_end_create_profile, UserStates.ask_splits)
 
