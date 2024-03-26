@@ -10,7 +10,7 @@ class Base(DeclarativeBase):
 
 engine = create_engine(db_url)
 session_factory = sessionmaker(bind=engine)
-session = Session()
+session = session_factory()
 
 
 def get_session() -> Session:

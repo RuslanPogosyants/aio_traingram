@@ -1,26 +1,17 @@
-import requests
-import json
-from project.config import ai_token
+from project.config import gigachat_token
+from langchain.schema import HumanMessage, SystemMessage
+from langchain.chat_models.gigachat import GigaChat
 
-url = "https://api.theb.ai/v1/chat/completions"
-# url = "https://api.baizhi.ai/v1/chat/completions"
+chat = GigaChat(credentials=gigachat_token, verify_ssl_certs=False)
 
-payload = json.dumps({
-  "model": "gpt-3.5-turbo",
-  "messages": [
-    {
-      "role": "user",
-      "content": "what is protein"
-    }
-  ],
-  "stream": False
-})
-headers = {
-  'Authorization': f'Bearer {ai_token}',
-  'Content-Type': 'application/json'
-}
 
-response = requests.request("POST", url, headers=headers, data=payload)
+def request_answer(promt: str) -> str:
+    role = [SystemMessage(content='Ты эксперт в таких областях как ЛФК, здоровое питание, физические упражнения. Ты помощник-тренер, отвечай только на вопросы по этим темам.')]
+    messages = role
+    messages.append(HumanMessage(content=promt))
+    result = chat(messages)
+    return result.content
 
-print(response.json())
 
+if __name__ == "__main__":
+    print(request_answer("Что такое протеин?"))

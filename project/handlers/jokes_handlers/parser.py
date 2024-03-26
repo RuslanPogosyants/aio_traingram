@@ -8,3 +8,5 @@ jokes = soup.find_all('div', class_='text')
 
 jokes = [joke.text for joke in jokes]
 
+if __name__ == '__main__':
+    print(jokes)

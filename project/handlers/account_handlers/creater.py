@@ -1,6 +1,6 @@
 from aiogram.filters import CommandStart
 from project.database.models import User
-from aiogram import Dispatcher
+from aiogram import Dispatcher, F
 from aiogram.types import CallbackQuery, Message, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardButton, KeyboardBuilder
 from project.config import bot
@@ -9,11 +9,10 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.markdown import hbold
 
 
-def create_ik(*args, **kwargs) -> InlineKeyboardMarkup:
+def create_ik(arg) -> InlineKeyboardMarkup:
     builder = KeyboardBuilder(button_type=InlineKeyboardButton)
-    for i in list(*args, **kwargs):
-        inline_button = InlineKeyboardButton(text=i, callback_data=i)
-        builder.add(inline_button)
+    inline_button = InlineKeyboardButton(text=arg, callback_data=arg)
+    builder.add(inline_button)
     markup = InlineKeyboardMarkup(inline_keyboard=builder.export())
     return markup
 
@@ -43,16 +42,15 @@ async def start(message: Message, state: FSMContext) -> None:
         await message.answer('Вы уже зарегистрированы!')
     else:
         User.create_user(user_id)
-        bot_message = await bot.send_message(chat_id=user_id, text='Давайте зарегистрируем вас!')
-        await state.set_state(UserStates.ask_name)
+        bot_message = await bot.send_message(chat_id=user_id, text='Давайте зарегистрируем вас!', reply_markup=create_ik('Начать регистрацию!'))
         await state.update_data(message_id=bot_message.message_id)
 
 
-async def ask_name(message: Message, state: FSMContext) -> None:
+async def ask_name(callback: CallbackQuery, state: FSMContext) -> None:
     text = 'Введите ваше имя:'
-    await message.answer(text=text)
     await state.set_state(UserStates.set_name)
-    bot_message = await bot.edit_message_text(chat_id=message.from_user.id, text=text)
+    data = await state.get_data()
+    bot_message = await bot.edit_message_text(chat_id=callback.from_user.id, text=text,  message_id=data['message_id'])
     await state.update_data(message_id=bot_message.message_id)
 
 
@@ -60,8 +58,10 @@ async def set_name(message: Message, state: FSMContext) -> None:
     user_id = message.from_user.id
     name = message.text
     User.set_name(user_id=user_id, name=name)
-    text = User.view_info(user_id=user_id)
-    await message.edit_text(text=text)
+    text = f'Ваше имя {User.name}/nВведите ваш возраст:'
+    data = await state.get_data()
+    bot_message = await bot.edit_message_text(chat_id=message.from_user.id, text=text, message_id=data['message_id'])
+    await state.update_data(message_id=bot_message.message_id)
     await state.set_state(UserStates.ask_age)
 
 
@@ -77,6 +77,7 @@ async def ask_gender(callback: CallbackQuery, state: FSMContext) -> None:
     text = 'Выберите пол:'
     ik_gender = create_ik('Мужской', 'Женский')
     await bot.send_message(chat_id=user_id, text=text, reply_markup=ik_gender)
+    await state.set_state(UserStates.set_gender)
 
 
 async def set_gender(callback: CallbackQuery, state: FSMContext) -> None:
@@ -134,7 +135,7 @@ async def ask_splits(message: Message, state: FSMContext) -> None:
 
 async def set_splits(callback: CallbackQuery, state: FSMContext) -> None:
     user_id = callback.from_user.id
-    User.set_split(user_id, split.name)
+    User.set_split(user_id, 'split.name')
     text = '...'
     await bot.send_message(chat_id=user_id, text=text)
 
@@ -160,8 +161,8 @@ async def wrong_weight(message: Message, state: FSMContext):
 
 
 def register_handlers_account(dp: Dispatcher):
-    dp.message.register(start)
-    dp.message.register(ask_name, UserStates.ask_name)
-    dp.message.register(set_name, UserStates.set_name, lambda x: x.isalpha() and len(x) < 30)
+    dp.message.register(start, F.text.casefold() == '/start')
+    dp.callback_query.register(ask_name, lambda callback_query: callback_query.data == 'Начать регистрацию!')
+    dp.message.register(set_name, UserStates.set_name, lambda x: x.text.isalpha())
 
 
