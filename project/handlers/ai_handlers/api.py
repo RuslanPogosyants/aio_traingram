@@ -10,6 +10,7 @@ def request_answer(promt: str) -> str:
     messages = role
     messages.append(HumanMessage(content=promt))
     result = chat(messages)
+    messages.remove(HumanMessage(content=promt))
     return result.content
 
 

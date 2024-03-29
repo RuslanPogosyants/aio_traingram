@@ -23,5 +23,5 @@ async def edit_get_joke(callback: CallbackQuery):
 
 
 def register_handlers_joke(dp: Dispatcher):
-    dp.message.register(get_joke, F.text.casefold() == 'joke')
+    dp.message.register(get_joke, F.text.casefold() == '/joke')
     dp.callback_query.register(edit_get_joke, lambda callback_query: callback_query.data == 'joke')

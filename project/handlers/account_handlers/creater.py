@@ -24,19 +24,12 @@ def create_ik(args: str | list) -> InlineKeyboardMarkup:
 
 
 class UserStates(StatesGroup):
-    ask_name = State()
     set_name = State()
-    ask_age = State()
     set_age = State()
-    ask_gender = State()
     set_gender = State()
-    ask_weight = State()
     set_weight = State()
-    ask_height = State()
     set_height = State()
-    ask_pace = State()
     set_pace = State()
-    ask_splits = State()
     set_split = State()
 
 
@@ -141,20 +134,34 @@ async def set_pace_ask_splits(callback: CallbackQuery, state: FSMContext) -> Non
     pace = callback.data
     User.set_pace(user_id=user_id, pace=pace)
 
-    text = f'Ваше имя: {User.get_name(user_id)}\nВаш возраст: {User.get_age(user_id)}\nВаш пол: {User.get_gender(user_id)}\nВведите ваш рост: {User.get_height(user_id)}\nВаш вес: {User.get_weight(user_id)}\nВаш темп: {User.get_pace(user_id)}'
+    text = f'Ваше имя: {User.get_name(user_id)}\nВаш возраст: {User.get_age(user_id)}\nВаш пол: {User.get_gender(user_id)}\nВведите ваш рост: {User.get_height(user_id)}\nВаш вес: {User.get_weight(user_id)}\nВаш темп: {User.get_pace(user_id)}\nВыберите один из планов тренировок:'
 
     data = await state.get_data()
     bot_message = await bot.edit_message_text(chat_id=callback.from_user.id, text=text, message_id=data['message_id'])
     await state.update_data(message_id=bot_message.message_id)
 
-    await state.set_state(UserStates.ask_splits)
+    await state.set_state(UserStates.set_split)
 
 
-async def set_splits_end_create_profile(callback: CallbackQuery, state: FSMContext) -> None:
-    user_id = callback.from_user.id
-    User.set_split(user_id, 'split.name')
-    text = '...'
-    await bot.send_message(chat_id=user_id, text=text)
+async def send_split():
+    pass
+
+
+async def set_splits_end_create_profile(message: Message, state: FSMContext) -> None:
+    user_id = message.from_user.id
+    #  split_name = callback.data
+    User.set_split(user_id=user_id, split_name='split.name')
+
+    text = User.view_info(user_id=user_id) + 'Если вы хотите узнать что-то у ИИ, то напишите запрос, начиная с ai'
+
+    data = await state.get_data()
+    bot_message = await bot.edit_message_text(chat_id=message.from_user.id, text=text, message_id=data['message_id'])
+
+    #  await bot.delete_message(chat_id=callback.from_user.id, message_id=callback.message.message_id)
+    await state.update_data(message_id=bot_message.message_id)
+    await state.clear()
+
+
 
 
 def register_handlers_account(dp: Dispatcher) -> None:
@@ -166,5 +173,4 @@ def register_handlers_account(dp: Dispatcher) -> None:
     dp.message.register(set_height_ask_weight, UserStates.set_height, lambda x: x.text.isdigit())
     dp.message.register(set_weight_ask_pace, UserStates.set_weight, lambda x: x.text.isdigit())
     dp.callback_query.register(set_pace_ask_splits, UserStates.set_pace, lambda callback_query: callback_query.data in ['Минимальный', 'Средний', 'Максимальный'])
-    dp.callback_query.register(set_splits_end_create_profile, UserStates.ask_splits)
-
+    dp.message.register(set_splits_end_create_profile, UserStates.set_split)

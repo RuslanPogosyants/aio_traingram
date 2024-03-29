@@ -4,6 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import Session
 from project.config import db_url
 
+
 class Base(DeclarativeBase):
     pass
 

@@ -1,6 +1,5 @@
 from .base import Base, session, engine
 from sqlalchemy import Column, Integer, String, BigInteger
-from sqlalchemy.sql import select
 from aiogram.utils.markdown import hbold
 
 
@@ -40,12 +39,7 @@ class User(Base):
     @classmethod
     def view_info(cls, user_id: int) -> str:
         user = session.query(cls).filter_by(id=user_id).first()
-        info = f'Ваше имя: {hbold(user.name)}\n'
-        f'Ваш возраст: {hbold(user.age)}\n'
-        f'Ваш пол: {hbold(user.gender)}\n'
-        f'Ваш вес: {hbold(user.weight)}\n'
-        f'Ваш рост: {hbold(user.height)}\n'
-        f'Ваша цель: {hbold(user.pace)}\n'
+        info = f'ПРОФИЛЬ:\nВаше имя: {hbold(user.name)}\nВаш возраст: {hbold(user.age)}\nВаш пол: {hbold(user.gender)}\nВаш вес: {hbold(user.weight)}\nВаш рост: {hbold(user.height)}\nВаша цель: {hbold(user.pace)}\nВаш тренировочный план: {hbold(user.split)}'
         if user:
             return info
         else:
@@ -100,38 +94,43 @@ class User(Base):
         session.commit()
 
     @classmethod
-    def get_name(cls, user_id):
+    def get_name(cls, user_id) -> str:
         user = session.query(cls).filter_by(id=user_id).first()
         return user.name if user else None
 
     @classmethod
-    def get_gender(cls, user_id):
+    def get_gender(cls, user_id) -> str:
         user = session.query(cls).filter_by(id=user_id).first()
         return user.gender if user else None
 
     @classmethod
-    def get_age(cls, user_id):
+    def get_age(cls, user_id) -> int:
         user = session.query(cls).filter_by(id=user_id).first()
         return user.age if user else None
 
     @classmethod
-    def get_height(cls, user_id):
+    def get_height(cls, user_id) -> int:
         user = session.query(cls).filter_by(id=user_id).first()
         return user.height if user else None
 
     @classmethod
-    def get_weight(cls, user_id):
+    def get_weight(cls, user_id) -> int:
         user = session.query(cls).filter_by(id=user_id).first()
         return user.weight if user else None
 
     @classmethod
-    def get_pace(cls, user_id):
+    def get_pace(cls, user_id) -> str:
         user = session.query(cls).filter_by(id=user_id).first()
         return user.pace if user else None
 
     @classmethod
-    def get_split(cls, user_id):
+    def get_split(cls, user_id) -> str:
         user = session.query(cls).filter_by(id=user_id).first()
         return user.split if user else None
+
+
+class Split():
+    ...
+
 
 Base.metadata.create_all(engine)
