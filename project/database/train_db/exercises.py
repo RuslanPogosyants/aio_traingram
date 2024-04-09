@@ -1,4 +1,3 @@
-
 class Exercise:
 
     def __init__(self, name, description, set_repetition, url, musclegroups):
@@ -9,10 +8,10 @@ class Exercise:
         self.musclegroups = musclegroups
 
     def __str__(self):
-        return f' [{self.name}]({self.url}) - {self.description}\n План: {self.set_repetition}\nЗадействуется - {self.musclegroups}\n'
+        return f'[{self.name}]({self.url}) - {self.description}\nПлан: {self.set_repetition}\nЗадействуется - {self.musclegroups}\n'
 
     def __repr__(self):
-        return f'[{self.name}]({self.set_repetition})'
+        return f'|[{self.name}]({self.url})|'
 
 
 # Упражнения
@@ -72,17 +71,6 @@ HackSquat = Exercise('Hack Squat', 'присед на тренажере', '2-4 
 AbdominalCrunch = Exercise('Abdominal Crunch', 'скручивания', '2-4 рабочих подхода до отказа по 8-15 повторений', 'https://www.youtube.com/watch?v=fuPFq2EYswE&ab_channel=FitLifeFitness%2CAquaticsandPhysicalTherapy', 'пресс')
 DumbbellShoulderPress = Exercise('Dumbbell Shoulder Press', 'жим гантелей на плечи', '2-4 рабочих подхода до отказа по 6-12 повторений', 'https://www.youtube.com/watch?v=qEwKCR5JCog&ab_channel=ScottHermanFitness', 'плечи, трицепс(косвенно)')
 
-
-
-
-exercises = [BenchPress, InclineBenchPress, InclineDumbbellPress, DumbbellBenchPress, DeclineChestPress, ChestPressMachine, Dips,
-    PullUp, PullDown, Deadlift, BarbellBent_OverRow, CableRow, HammerStrengthRow, Shrugs, StraightArmPulldown,
-    ShoulderPress, LateralRaise, ArnoldPress, BehindTheBackCurl, MachineLateralRaise, UprightRow, ReverseFly,
-    BarbellCurl, DumbbellBicepsCurl, HammerCurl, PreacherCurl, PushUp, TricepExtension, TricepOverheadExtension, FrenchPress, SkullCrusher, CloseGripBenchPress,
-    Squat, HackSquat, Lunges, LegPress, RomanianDeadlift, ProneLegCurl, LegExtension, BulgarianSplitSquat, GluteBridge, SeatedLegCurl, AbdominalCrunch, HangingLegRaise, Plank,
-    Running, JumpRope, BoxJumps, Cycling, StairClimbing, Swimming, RussianTwist, Burpees, RestDay]
-
-
 muscle_group = {
     'Грудь': (BenchPress, InclineBenchPress, ChestPressMachine, InclineDumbbellPress, DumbbellBenchPress, Dips, PushUp, DeclineChestPress),
     'Спина': (PullUp, Deadlift, PullDown, CableRow, BarbellBent_OverRow, StraightArmPulldown, Shrugs, HammerStrengthRow),
@@ -94,21 +82,11 @@ muscle_group = {
     'Кардио': (Running, JumpRope, Cycling, StairClimbing, Swimming, Burpees)
 }
 
-# Тренировочные дни
-LegDay = (Squat, HackSquat, Lunges, LegPress, BulgarianSplitSquat, LegExtension, SeatedLegCurl, RomanianDeadlift, ProneLegCurl, GluteBridge, BoxJumps)
-ChestDay = (BenchPress, InclineBenchPress, ChestPressMachine, InclineDumbbellPress, DumbbellBenchPress, Dips, PushUp, DeclineChestPress)
-HIITDay = (Running, JumpRope, Burpees, Lunges, Squat, Deadlift)
-CardioDay = (Running, JumpRope, Cycling, StairClimbing, Swimming, Burpees)
-ArmDay = (BarbellCurl, DumbbellBicepsCurl, HammerCurl, PreacherCurl, BehindTheBackCurl, TricepExtension, TricepOverheadExtension, FrenchPress, SkullCrusher, Dips, CloseGripBenchPress)
-BackDay = (PullUp, Deadlift, PullDown, CableRow, BarbellBent_OverRow, StraightArmPulldown, Shrugs, HammerStrengthRow)
-FullBodyDay = (Squat, Deadlift, BenchPress, PullUp, ShoulderPress, Lunges, BarbellCurl, TricepExtension)
-RelaxDay = 'Сегодня вы можете отдохнуть! Восстанавливайтесь!'
 
-WorkoutDays = [LegDay, ChestDay, HIITDay, CardioDay, ArmDay, BackDay, FullBodyDay, RelaxDay]
-DayDescription = {LegDay: "День Ног", ChestDay: "День Груди", HIITDay: "Высокоинтенсивная Тренировка", CardioDay: "Кардио", ArmDay: "День Рук", BackDay: "День Спины", FullBodyDay: "День Тренировки Всего Тела", RelaxDay: 'День отдыха'}
+if __name__ == '__main__':
+    for muscle, exercises in muscle_group.items():
+        print(muscle, *[repr(exercise) for exercise in exercises])
 
-
-
-
+    print('\n\n', muscle_group['Грудь'][0])
 
 
