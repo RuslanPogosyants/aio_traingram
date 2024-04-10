@@ -13,9 +13,14 @@ class User(Base):
     weight = Column(Integer, default=None)
     pace = Column(String(30), default=None)
     split = Column(String(30), default=None)
+    last_day_sent = Column(Integer, default=0)
 
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, name={self.name!r}"
+
+    @classmethod
+    def __iter__(cls):
+        return iter(session.query(cls).all())
 
     @classmethod
     def user_exist(cls, user_id: int) -> bool:
@@ -127,6 +132,11 @@ class User(Base):
     def get_split(cls, user_id) -> str:
         user = session.query(cls).filter_by(id=user_id).first()
         return user.split if user else None
+
+    @classmethod
+    def get_last_day_sent(cls, user_id) -> int:
+        user = session.query(cls).filter_by(id=user_id).first()
+        return user.last_day_sent if user else None
 
 
 Base.metadata.create_all(engine)
