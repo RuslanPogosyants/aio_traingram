@@ -13,6 +13,11 @@ async def main() -> None:
     register_handlers_joke(dp)
     register_handlers_ai(dp)
     print(await bot.get_webhook_info())
+    #####
+    # schedule_thread = threading.Thread(target=schedule_loop)
+    # schedule_thread.start()
+    # asyncio.create_task(notify_periodically())
+    #####
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types(), close_bot_session=True)
 
 

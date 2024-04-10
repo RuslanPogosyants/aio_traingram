@@ -141,23 +141,29 @@ async def set_pace_ask_splits(callback: CallbackQuery, state: FSMContext) -> Non
     bot_message = await bot.edit_message_text(chat_id=callback.from_user.id, text=text, message_id=data['message_id'])
     await state.update_data(message_id=bot_message.message_id)
 
+    split_message_ids = []
     for split in split_list:
         split_message = await bot.send_photo(chat_id=callback.from_user.id, photo=BufferedInputFile(file=split.photo_in_bytes, filename='PPL.jpg'), caption=f'{split.name} - {split.description}', reply_markup=create_ik(split.name))
+        split_message_ids.append(split_message.message_id)
 
+    await state.update_data(split_message_ids=split_message_ids)
     await state.set_state(UserStates.set_split)
 
 
 async def set_splits_end_create_profile(callback: CallbackQuery, state: FSMContext) -> None:
     user_id = callback.from_user.id
     split_name = callback.data
-    User.set_split(user_id=user_id, split_name='split.name')
+    User.set_split(user_id=user_id, split_name=split_name)
 
-    text = User.view_info(user_id=user_id) + 'Если вы хотите узнать что-то у ИИ, то напишите запрос, начиная с ai'
+    text = User.view_info(user_id=user_id) + '\nЕсли вы хотите узнать что-то у ИИ, то напишите запрос, начиная с ai'
 
     data = await state.get_data()
     bot_message = await bot.edit_message_text(chat_id=callback.from_user.id, text=text, message_id=data['message_id'])
 
-    #  await bot.delete_message(chat_id=callback.from_user.id, message_id=callback.message.message_id)
+    split_message_ids = data.get('split_message_ids', [])
+    for message_id in split_message_ids:
+        await bot.delete_message(chat_id=callback.from_user.id, message_id=message_id)
+
     await state.update_data(message_id=bot_message.message_id)
     await state.clear()
 
@@ -171,4 +177,4 @@ def register_handlers_account(dp: Dispatcher) -> None:
     dp.message.register(set_height_ask_weight, UserStates.set_height, lambda x: x.text.isdigit())
     dp.message.register(set_weight_ask_pace, UserStates.set_weight, lambda x: x.text.isdigit())
     dp.callback_query.register(set_pace_ask_splits, UserStates.set_pace, lambda callback_query: callback_query.data in ['Минимальный', 'Средний', 'Максимальный'])
-    dp.message.register(set_splits_end_create_profile, UserStates.set_split, lambda callback_query: callback_query.data in [split.name for split in split_list])
+    dp.callback_query.register(set_splits_end_create_profile, UserStates.set_split, lambda callback_query: callback_query.data in [split.name for split in split_list])
