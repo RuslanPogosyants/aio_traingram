@@ -159,6 +159,7 @@ async def set_splits_end_create_profile(callback: CallbackQuery, state: FSMConte
 
     data = await state.get_data()
     bot_message = await bot.edit_message_text(chat_id=callback.from_user.id, text=text, message_id=data['message_id'])
+    await bot_message.pin()
 
     split_message_ids = data.get('split_message_ids', [])
     for message_id in split_message_ids:
