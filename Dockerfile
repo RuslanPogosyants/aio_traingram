@@ -5,10 +5,9 @@ WORKDIR /usr/src/app
 
 COPY . /usr/src/app
 
-RUN pip install poetry
-COPY pyproject.toml .
-COPY poetry.lock .
-RUN poetry install
+COPY requirements.txt /usr/src/app
+RUN pip install --no-cache-dir -r requirements.txt
+
 LABEL authors="r.pogosyants"
 
 CMD ["python", "project/main.py"]
